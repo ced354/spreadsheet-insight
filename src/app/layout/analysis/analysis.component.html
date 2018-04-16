@@ -1,0 +1,139 @@
+<div class="container" fxLayout fxLayout.xs="column" fxLayoutAlign="center" fxLayoutGap="10px" fxLayoutGap.xs="0">
+  <div class="item item-1" fxFlex="5%"></div>
+  <div class="item item-2" fxFlex>
+      
+    <xlsx-file-upload (oWorkbook)="onWorkbookChanged($event)"></xlsx-file-upload>
+
+    <h2 class="example-h2">Worker</h2>
+    <mat-tab-group class="demo-tab-group" (focusChange)="onFocusedTabChanged($event)">
+      <mat-tab label="Tab 1">
+        <ng-template mat-tab-label>
+          <mat-icon>view_list</mat-icon>
+        </ng-template>
+
+        
+        <div class="demo-tab-content">
+
+          
+            <mat-form-field>
+                <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
+              </mat-form-field>
+
+
+              <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+          <mat-table [dataSource]="dataSource" matSort>
+
+            <ng-container *ngFor="let header of headers" matColumnDef="{{header}}">
+              <mat-header-cell *matHeaderCellDef mat-sort-header> {{header}} </mat-header-cell>
+              <mat-cell *matCellDef="let row"> {{getValue(header, row)}} </mat-cell>
+            </ng-container>
+
+            
+
+            <mat-header-row *matHeaderRowDef="headers"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: headers;">
+            </mat-row>
+          </mat-table>
+
+
+        </div>
+      </mat-tab>
+      <mat-tab label="Tab 2">
+        <ng-template mat-tab-label>
+          <mat-icon>insert_chart</mat-icon>
+        </ng-template>
+        <div class="demo-tab-content">
+          TODO : show analysis and customization here (separate components for qualitative and quantitative)
+          <chart-basic [show]="showChartBasic" [workSheet]="workSheet"></chart-basic>
+          <word-cloud [show]="showChartBasic" [workSheet]="workSheet"></word-cloud>
+
+          <force-directed [show]="showChartBasic" [workSheet]="workSheet"></force-directed>
+          
+        </div>
+      </mat-tab>
+      <mat-tab label="Tab 3">
+        <ng-template mat-tab-label>
+          <mat-icon>dashboard</mat-icon>
+        </ng-template>
+        <div class="demo-tab-content">
+          TODO : component for dashboard creation
+        </div>
+      </mat-tab>
+      <mat-tab label="Tab 4">
+        <ng-template mat-tab-label>
+          <mat-icon>format_list_numbered</mat-icon>
+        </ng-template>
+        <div class="demo-tab-content">
+          <ol>
+            <li>Common commands
+              <ul>
+                <li>Go to [data/analysis/dashboard]</li>
+                <li>Show help</li>
+              </ul>
+            </li>
+            <li>Data tab commands
+              <ul>
+                <li>Filter by [column] contains [string]</li>
+                <li>Filter by [column] between [number] and [number]</li>
+                <li>Filter by [column] range [date] and [date]</li>
+                <li>Remove filter [column]</li>
+                <li>Sort by [column] [asc/desc]</li>
+                <li>Remove sort [column]</li>
+                <li>Go to page [number]</li>
+              </ul>
+            </li>
+            <li>Analysis tab commands
+              <ul>
+                <li>Load [wordcloud/semantic/sentiment/pie/line/column/sankey]</li>
+
+                <li>Semantic [all/column]</li>
+                <li>Semantic find [word/phrase]</li>
+                <li>Semantic dash</li>
+
+                <li>Wordcloud [all/column]</li>
+                <li>Wordcloud remove [word]</li>
+                <li>Wordcloud reset [word]</li>
+                <li>Wordcloud dash</li>
+
+                <li>Sentiment [all/column]</li>
+                <li>Sentiment find [word]</li>
+                <li>Sentiment dash</li>
+
+                <li>Pie add [column] [count/sum/ave/min/max] [color]</li>
+                <li>Pie remove [column]</li>
+                <li>Pie move [column] [position]</li>
+                <li>Pie clear</li>
+                <li>Pie dash</li>
+
+                <li>Line add base [column] [color]</li>
+                <li>Line add value [column] [count/sum/ave/min/max]</li>
+                <li>Line remove base [column]</li>
+                <li>Line remove value [column]</li>
+                <li>Line convert ['column']</li>
+                <li>Line clear</li>
+                <li>Line dash</li>
+
+                <li>Sankey add [column] [column-aggregate] [color]</li>
+                <li>Sankey remove [column]</li>
+                <li>Sankey move [column] [position]</li>
+                <li>Sankey clear</li>
+                <li>Sankey dash</li>
+
+                <li>Data add [column]</li>
+                <li>Data remove [column]</li>
+                <li>Data page [number]</li>
+              </ul>
+            </li>
+            <li>Dashboard tab commands
+              <ul>
+                <li>Dash move [temp-name] [position]</li>
+                <li>Dash size [temp-name] [1/2/full]</li>
+              </ul>
+            </li>
+          </ol>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+  <div class="item item-3" fxFlex="5%"></div>
+</div>
