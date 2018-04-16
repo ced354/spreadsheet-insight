@@ -44,10 +44,11 @@
         </ng-template>
         <div class="demo-tab-content">
           TODO : show analysis and customization here (separate components for qualitative and quantitative)
+
           <chart-basic [show]="showChartBasic" [workSheet]="workSheet"></chart-basic>
           <word-cloud [show]="showChartBasic" [workSheet]="workSheet"></word-cloud>
-
           <force-directed [show]="showChartBasic" [workSheet]="workSheet"></force-directed>
+          <chart-pie [show]="showChartBasic" [workSheet]="workSheet"></chart-pie>
           
         </div>
       </mat-tab>
@@ -56,7 +57,21 @@
           <mat-icon>dashboard</mat-icon>
         </ng-template>
         <div class="demo-tab-content">
-          TODO : component for dashboard creation
+
+
+          <mat-grid-list cols="2" rowHeight="2:1" gutterSize="5px" rowHeight="400px">
+            <mat-grid-tile *ngFor="let tile of dashParams" >
+              <div class="full-container">
+                  <chart-basic *ngIf="tile.Type == 1" [show]="alwaysShow" [workSheet]="tile.Sheet"></chart-basic>
+                  <word-cloud *ngIf="tile.Type == 3" [show]="alwaysShow" [workSheet]="tile.Sheet"></word-cloud>
+                  <force-directed *ngIf="tile.Type == 4" [show]="alwaysShow" [workSheet]="tile.Sheet"></force-directed>
+                  <chart-pie *ngIf="tile.Type == 2" [show]="alwaysShow" [workSheet]="tile.Sheet"></chart-pie>
+              </div>
+                
+            </mat-grid-tile>
+          </mat-grid-list>
+
+        
         </div>
       </mat-tab>
       <mat-tab label="Tab 4">

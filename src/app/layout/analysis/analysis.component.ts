@@ -4,6 +4,7 @@ import { SpeechService } from '../../shared/services/speech.service';
 import { Subscription } from 'rxjs/Subscription';
 import { MatTableDataSource, MatPaginator, MatSort } from '@angular/material';
 import { IWorkbook, IWorksheet } from '../../shared/models/workbook';
+import { ChartParam } from '../../shared/models/chart-param';
 
 @Component({
   selector: 'app-analysis',
@@ -18,9 +19,22 @@ export class AnalysisComponent implements OnInit, OnDestroy, AfterViewInit {
   workSheet: IWorksheet;
 
   showChartBasic: boolean;
+  alwaysShow: boolean = true;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+
+  tiles = [
+    {text: 'One', cols: 3, rows: 1, color: 'lightblue'},
+    {text: 'Two', cols: 1, rows: 2, color: 'lightgreen'},
+    {text: 'Three', cols: 1, rows: 1, color: 'lightpink'},
+    {text: 'Four', cols: 1, rows: 1, color: '#DDBDF1'},
+    {text: 'Five', cols: 1, rows: 2, color: '#DDBDF1'},
+    {text: 'Six', cols: 2, rows: 1, color: '#DDBDF1'},
+    {text: 'Seven', cols: 1, rows: 3, color: '#DDBDF1'},
+  ];
+
+  dashParams: ChartParam[] = [];
   
   /**
     * Constructor
@@ -38,7 +52,6 @@ export class AnalysisComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    
   }
 
   applyFilter(filterValue: string) {
@@ -71,7 +84,23 @@ export class AnalysisComponent implements OnInit, OnDestroy, AfterViewInit {
     this.headers = this.workbook.Sheets[2].Headers;
     this.workSheet = this.workbook.Sheets[2];
 
-    console.log(this.headers);
+    this.dashParams = [];
+    this.dashParams.push({
+      Sheet: this.workSheet,
+      Type: 1
+    });
+    this.dashParams.push({
+      Sheet: this.workSheet,
+      Type: 2
+    });
+    this.dashParams.push({
+      Sheet: this.workSheet,
+      Type: 3
+    });
+    this.dashParams.push({
+      Sheet: this.workSheet,
+      Type: 4
+    });
 
     this.dataSource = new MatTableDataSource(this.workbook.Sheets[2].Values);
     this.dataSource.paginator = this.paginator;

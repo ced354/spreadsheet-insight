@@ -13,6 +13,7 @@ import { NgxEchartsModule } from 'ngx-echarts';
 import { ChartBasicComponent } from './components/chart-basic/chart-basic.component';
 import { WordCloudComponent } from './components/word-cloud/word-cloud.component';
 import { ForceDirectedComponent } from './components/force-directed/force-directed.component';
+import { ChartPieComponent } from './components/chart-pie/chart-pie.component';
 
 @NgModule({
   imports: [
@@ -57,13 +58,15 @@ import { ForceDirectedComponent } from './components/force-directed/force-direct
     XlsxFileUploadComponent,
     ChartBasicComponent,
     WordCloudComponent,
-    ForceDirectedComponent
+    ForceDirectedComponent,
+    ChartPieComponent
   ],
   declarations: [
     XlsxFileUploadComponent,
     ChartBasicComponent,
     WordCloudComponent,
-    ForceDirectedComponent
+    ForceDirectedComponent,
+    ChartPieComponent
   ],
   providers: [],
   bootstrap: []
