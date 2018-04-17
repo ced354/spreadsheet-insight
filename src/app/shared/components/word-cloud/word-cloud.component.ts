@@ -10,12 +10,10 @@ import * as $ from 'jquery';
 
 export class WordCloudComponent implements OnChanges {
   
-  @Input() show: boolean;
   @Input() workSheet: IWorksheet;
   chartOption: any;
   
   constructor(){
-    this.show = false;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -60,8 +58,6 @@ export class WordCloudComponent implements OnChanges {
 
       });
     });
-
-    console.log(this.workSheet.Values);
 
     this.chartOption = {
         title:{

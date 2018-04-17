@@ -10,14 +10,12 @@ import * as $ from 'jquery';
 
 export class ChartPieComponent implements OnChanges {
   
-  @Input() show: boolean;
   @Input() workSheet: IWorksheet;
   chartOption: any;
 
   echartsInstance: any;
   
   constructor(){
-    this.show = false;
   }
 
   ngOnChanges(changes: SimpleChanges): void {

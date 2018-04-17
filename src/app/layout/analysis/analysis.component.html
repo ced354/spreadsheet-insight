@@ -1,42 +1,36 @@
 <div class="container" fxLayout fxLayout.xs="column" fxLayoutAlign="center" fxLayoutGap="10px" fxLayoutGap.xs="0">
-  <div class="item item-1" fxFlex="5%"></div>
+  <div class="item item-1" fxFlex="1%"></div>
   <div class="item item-2" fxFlex>
-      
+
     <xlsx-file-upload (oWorkbook)="onWorkbookChanged($event)"></xlsx-file-upload>
 
-    <h2 class="example-h2">Worker</h2>
-    <mat-tab-group class="demo-tab-group" (focusChange)="onFocusedTabChanged($event)">
+    <button mat-button (click)="_dummyCall('Go Data')">Go Data</button>
+    <button mat-button (click)="_dummyCall('Go Analyze')">Go Analyze</button>
+    <button mat-button (click)="_dummyCall('Go Dash')">Go Dash</button>
+
+    <button mat-button color="primary" *ngIf="tabIndex == 0" (click)="_dummyCall('Filter contains')">Filter contains</button>
+    <button mat-button color="primary" *ngIf="tabIndex == 0" (click)="_dummyCall('Filter between')" disabled>Filter between</button>
+    <button mat-button color="primary" *ngIf="tabIndex == 0" (click)="_dummyCall('Filter range')" disabled>Filter range</button>
+    <button mat-button color="primary" *ngIf="tabIndex == 0" (click)="_dummyCall('Remove filter')">Remove filter</button>
+    <button mat-button color="primary" *ngIf="tabIndex == 0" (click)="_dummyCall('Sort by')">Sort by</button>
+    <button mat-button color="primary" *ngIf="tabIndex == 0" (click)="_dummyCall('Remove sort')">Remove sort</button>
+    <button mat-button color="primary" *ngIf="tabIndex == 0" (click)="_dummyCall('Go to page')">Go to page</button>
+    
+    <button mat-button color="primary" *ngIf="tabIndex == 1" (click)="_dummyCall('Show line')">Show line</button>
+    <button mat-button color="primary" *ngIf="tabIndex == 1" (click)="_dummyCall('Show pie')">Show pie</button>
+    <button mat-button color="primary" *ngIf="tabIndex == 1" (click)="_dummyCall('Show word')">Show word</button>
+    <button mat-button color="primary" *ngIf="tabIndex == 1" (click)="_dummyCall('Show force')">Show force</button>
+
+    <mat-tab-group class="demo-tab-group" (focusChange)="onFocusedTabChanged($event)" [selectedIndex]="tabIndex">
       <mat-tab label="Tab 1">
         <ng-template mat-tab-label>
           <mat-icon>view_list</mat-icon>
         </ng-template>
 
-        
         <div class="demo-tab-content">
-
-          
-            <mat-form-field>
-                <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
-              </mat-form-field>
-
-
-              <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
-          <mat-table [dataSource]="dataSource" matSort>
-
-            <ng-container *ngFor="let header of headers" matColumnDef="{{header}}">
-              <mat-header-cell *matHeaderCellDef mat-sort-header> {{header}} </mat-header-cell>
-              <mat-cell *matCellDef="let row"> {{getValue(header, row)}} </mat-cell>
-            </ng-container>
-
-            
-
-            <mat-header-row *matHeaderRowDef="headers"></mat-header-row>
-            <mat-row *matRowDef="let row; columns: headers;">
-            </mat-row>
-          </mat-table>
-
-
+          <analysis-data [workSheet]="workSheet" [filter]="filter" [sortColumn]="sortColumn" [page]="page"></analysis-data>
         </div>
+
       </mat-tab>
       <mat-tab label="Tab 2">
         <ng-template mat-tab-label>
@@ -45,11 +39,11 @@
         <div class="demo-tab-content">
           TODO : show analysis and customization here (separate components for qualitative and quantitative)
 
-          <chart-basic [show]="showChartBasic" [workSheet]="workSheet"></chart-basic>
-          <word-cloud [show]="showChartBasic" [workSheet]="workSheet"></word-cloud>
-          <force-directed [show]="showChartBasic" [workSheet]="workSheet"></force-directed>
-          <chart-pie [show]="showChartBasic" [workSheet]="workSheet"></chart-pie>
-          
+          <chart-basic *ngIf="showDiagram == 1" [workSheet]="workSheet"></chart-basic>
+          <chart-pie *ngIf="showDiagram == 2" [workSheet]="workSheet"></chart-pie>
+          <word-cloud *ngIf="showDiagram == 3" [workSheet]="workSheet"></word-cloud>
+          <force-directed *ngIf="showDiagram == 4" [workSheet]="workSheet"></force-directed>
+
         </div>
       </mat-tab>
       <mat-tab label="Tab 3">
@@ -59,19 +53,19 @@
         <div class="demo-tab-content">
 
 
-          <mat-grid-list cols="2" rowHeight="2:1" gutterSize="5px" rowHeight="400px">
-            <mat-grid-tile *ngFor="let tile of dashParams" >
+          <mat-grid-list cols="4" gutterSize="10px" rowHeight="400px">
+            <mat-grid-tile *ngFor="let tile of dashParams" [colspan]="2">
               <div class="full-container">
-                  <chart-basic *ngIf="tile.Type == 1" [show]="alwaysShow" [workSheet]="tile.Sheet"></chart-basic>
-                  <word-cloud *ngIf="tile.Type == 3" [show]="alwaysShow" [workSheet]="tile.Sheet"></word-cloud>
-                  <force-directed *ngIf="tile.Type == 4" [show]="alwaysShow" [workSheet]="tile.Sheet"></force-directed>
-                  <chart-pie *ngIf="tile.Type == 2" [show]="alwaysShow" [workSheet]="tile.Sheet"></chart-pie>
+                <chart-basic *ngIf="tile.Type == 1" [workSheet]="tile.Sheet"></chart-basic>
+                <word-cloud *ngIf="tile.Type == 3" [workSheet]="tile.Sheet"></word-cloud>
+                <force-directed *ngIf="tile.Type == 4" [workSheet]="tile.Sheet"></force-directed>
+                <chart-pie *ngIf="tile.Type == 2" [workSheet]="tile.Sheet"></chart-pie>
               </div>
-                
+
             </mat-grid-tile>
           </mat-grid-list>
 
-        
+
         </div>
       </mat-tab>
       <mat-tab label="Tab 4">
@@ -82,7 +76,7 @@
           <ol>
             <li>Common commands
               <ul>
-                <li>Go to [data/analysis/dashboard]</li>
+                <li>Go [data/analyze/dash]</li>
                 <li>Show help</li>
               </ul>
             </li>
@@ -101,25 +95,6 @@
               <ul>
                 <li>Load [wordcloud/semantic/sentiment/pie/line/column/sankey]</li>
 
-                <li>Semantic [all/column]</li>
-                <li>Semantic find [word/phrase]</li>
-                <li>Semantic dash</li>
-
-                <li>Wordcloud [all/column]</li>
-                <li>Wordcloud remove [word]</li>
-                <li>Wordcloud reset [word]</li>
-                <li>Wordcloud dash</li>
-
-                <li>Sentiment [all/column]</li>
-                <li>Sentiment find [word]</li>
-                <li>Sentiment dash</li>
-
-                <li>Pie add [column] [count/sum/ave/min/max] [color]</li>
-                <li>Pie remove [column]</li>
-                <li>Pie move [column] [position]</li>
-                <li>Pie clear</li>
-                <li>Pie dash</li>
-
                 <li>Line add base [column] [color]</li>
                 <li>Line add value [column] [count/sum/ave/min/max]</li>
                 <li>Line remove base [column]</li>
@@ -128,14 +103,33 @@
                 <li>Line clear</li>
                 <li>Line dash</li>
 
-                <li>Sankey add [column] [column-aggregate] [color]</li>
-                <li>Sankey remove [column]</li>
-                <li>Sankey move [column] [position]</li>
-                <li>Sankey clear</li>
-                <li>Sankey dash</li>
+                <li>Pie add [column] [count/sum/ave/min/max] [color]</li>
+                <li>Pie remove [column]</li>
+                <li>Pie move [column] [position]</li>
+                <li>Pie clear</li>
+                <li>Pie dash</li>
 
-                <li>Data add [column]</li>
-                <li>Data remove [column]</li>
+                <li>Wordcloud [all/column]</li>
+                <li>Wordcloud remove [word]</li>
+                <li>Wordcloud reset [word]</li>
+                <li>Wordcloud dash</li>
+                
+                <li>Force add [column] [color]</li>
+                <li>Force remove [column] [color]</li>
+                <li>Force move [column] [position]</li>
+                <li>Force clear</li>
+                <li>Force dash</li>
+
+                <li>Semantic [all/column]</li>
+                <li>Semantic find [word/phrase]</li>
+                <li>Semantic dash</li>
+                
+                <li>Sentiment [all/column]</li>
+                <li>Sentiment find [word]</li>
+                <li>Sentiment dash</li>
+
+                <li>Data show [rowIndex]</li>
+                <li>Data reset</li>
                 <li>Data page [number]</li>
               </ul>
             </li>
@@ -150,5 +144,10 @@
       </mat-tab>
     </mat-tab-group>
   </div>
-  <div class="item item-3" fxFlex="5%"></div>
+  <div class="item item-3" fxFlex="19%">
+    <div class="full-container">
+      Response logs
+      <div *ngFor="let log of logs">{{log}}</div>
+    </div>
+  </div>
 </div>

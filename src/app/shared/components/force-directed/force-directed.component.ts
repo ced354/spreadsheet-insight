@@ -10,14 +10,12 @@ import * as $ from 'jquery';
 
 export class ForceDirectedComponent implements OnChanges {
   
-  @Input() show: boolean;
   @Input() workSheet: IWorksheet;
   chartOption: any;
 
   echartsInstance: any;
   
   constructor(){
-    this.show = false;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -105,10 +103,6 @@ export class ForceDirectedComponent implements OnChanges {
       
 
     });
-
-    console.log(nodes);
-    console.log(connections);
-
 
     this.chartOption = {
       title:{

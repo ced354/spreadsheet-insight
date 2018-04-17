@@ -10,12 +10,11 @@ import * as $ from 'jquery';
 
 export class ChartBasicComponent implements OnChanges {
   
-  @Input() show: boolean;
   @Input() workSheet: IWorksheet;
   chartOption: any;
   
   constructor(){
-    this.show = false;
+    
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -32,8 +31,6 @@ export class ChartBasicComponent implements OnChanges {
     if(!this.workSheet){
       return;
     }
-
-    console.log(this.workSheet.Values);
 
     let seriesData: any[] = [];
 
@@ -61,7 +58,6 @@ export class ChartBasicComponent implements OnChanges {
       seriesData.push(data);
     });
 
-    console.log(seriesData);
     this.chartOption = {
       title: {
         text: '堆叠区域图'

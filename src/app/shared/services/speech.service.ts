@@ -7,7 +7,7 @@ declare var annyang: any;
 
 @Injectable()
 export class SpeechService {
-  words$ = new Subject<{[key: string]: string}>();
+  command$ = new Subject<{[key: string]: any}>();
   errors$ = new Subject<{[key: string]: any}>();
   listening = false;
 
@@ -18,24 +18,26 @@ export class SpeechService {
   }
 
   init() {
+
+    // type : 1-common, 2-data, 3-analyze, 4-dash
     const commands = {
       'noun :noun': (noun) => {
         this.zone.run(() => {
-          this.words$.next({type: 'noun', 'word': noun});
+          this.command$.next({type: 'noun', 'word': noun});
         });
       },
       'verb :verb': (verb) => {
         this.zone.run(() => {
-          this.words$.next({type: 'verb', 'word': verb});
+          this.command$.next({type: 'verb', 'word': verb});
         });
       },
       'adjective :adj': (adj) => {
         this.zone.run(() => {
-          this.words$.next({type: 'adj', 'word': adj});
+          this.command$.next({type: 'adj', 'word': adj});
         });
       },
       'go *tag': (tag) => {
-        console.log(tag);
+        this.command$.next({type: 1, 'param': tag});
       }
     };
     annyang.addCommands(commands);

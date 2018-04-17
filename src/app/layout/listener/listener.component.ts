@@ -31,7 +31,6 @@ export class ListenerComponent implements OnInit, OnDestroy {
     this._listenNouns();
     this._listenVerbs();
     this._listenAdj();
-    this._listenGo();
     this._listenErrors();
   }
 
@@ -65,7 +64,7 @@ export class ListenerComponent implements OnInit, OnDestroy {
   }
 
   private _listenNouns() {
-    this.nounSub = this.svcSpeech.words$
+    this.nounSub = this.svcSpeech.command$
       .filter(obj => obj.type === 'noun')
       .map(nounObj => nounObj.word)
       .subscribe(
@@ -77,7 +76,7 @@ export class ListenerComponent implements OnInit, OnDestroy {
   }
 
   private _listenVerbs() {
-    this.verbSub = this.svcSpeech.words$
+    this.verbSub = this.svcSpeech.command$
       .filter(obj => obj.type === 'verb')
       .map(verbObj => verbObj.word)
       .subscribe(
@@ -89,7 +88,7 @@ export class ListenerComponent implements OnInit, OnDestroy {
   }
 
   private _listenAdj() {
-    this.adjSub = this.svcSpeech.words$
+    this.adjSub = this.svcSpeech.command$
       .filter(obj => obj.type === 'adj')
       .map(adjObj => adjObj.word)
       .subscribe(
@@ -100,17 +99,7 @@ export class ListenerComponent implements OnInit, OnDestroy {
       );
   }
 
-  private _listenGo() {
-    this.goSub = this.svcSpeech.words$
-      .filter(obj => obj.type === 'go')
-      .map(adjObj => adjObj.command)
-      .subscribe(
-        go => {
-          this._setError();
-          console.log('go:', go);
-        }
-      );
-  }
+  
 
   private _listenErrors() {
     this.errorsSub = this.svcSpeech.errors$
