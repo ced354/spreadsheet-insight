@@ -88,28 +88,28 @@ export class AnalysisComponent extends ListenerBase implements OnInit, OnDestroy
   
   onWorkbookChanged(e): void {
     this.workbook = e;
-    this.headers = this.workbook.Sheets[2].Headers;
-    this.workSheet = this.workbook.Sheets[2];
+    //this.headers = this.workbook.Sheets[2].Headers;
+    //this.workSheet = this.workbook.Sheets[2];
 
     this.dashParams = [];
-    this.dashParams.push({
-      Sheet: this.workSheet,
-      Type: 1
-    });
-    this.dashParams.push({
-      Sheet: this.workSheet,
-      Type: 2
-    });
-    this.dashParams.push({
-      Sheet: this.workSheet,
-      Type: 3
-    });
-    this.dashParams.push({
-      Sheet: this.workSheet,
-      Type: 4
-    });
+    //this.dashParams.push({
+    //  Sheet: this.workSheet,
+    //  Type: 1
+    //});
+    //this.dashParams.push({
+    //  Sheet: this.workSheet,
+    //  Type: 2
+    //});
+    //this.dashParams.push({
+    //  Sheet: this.workSheet,
+    //  Type: 3
+    //});
+    //this.dashParams.push({
+    //  Sheet: this.workSheet,
+    //  Type: 4
+    //});
 
-    this.logs = this.logs.concat(this.workbook.Sheets.map(sheet => {return sheet.Name;}));
+    
 
     //this.svcSpeech.startListening();
 
@@ -151,6 +151,17 @@ export class AnalysisComponent extends ListenerBase implements OnInit, OnDestroy
       break;
       case 'Go Dash':
         this.tabIndex = 2;
+      break;
+      case 'Show sheets':
+        this.logs = this.logs.concat(this.workbook.Sheets.map(sheet => {return sheet.Name;}));
+      break;
+      case 'Load sheet 1':
+        this.headers = this.workbook.Sheets[0].Headers;
+        this.workSheet = this.workbook.Sheets[0];
+      break;
+      case 'Load sheet 2':
+        this.headers = this.workbook.Sheets[1].Headers;
+        this.workSheet = this.workbook.Sheets[1];
       break;
       
       // data tab

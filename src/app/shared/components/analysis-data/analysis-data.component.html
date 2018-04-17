@@ -3,13 +3,16 @@
 </mat-form-field>
 
 <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
-<mat-table [dataSource]="dataSource" matSort>
 
-    <ng-container *ngFor="let header of headers" matColumnDef="{{header}}">
-        <mat-header-cell *matHeaderCellDef mat-sort-header> {{header}} </mat-header-cell>
-        <mat-cell *matCellDef="let row"> {{getValue(header, row)}} </mat-cell>
-    </ng-container>
-
-    <mat-header-row *matHeaderRowDef="headers"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: headers;"></mat-row>
-</mat-table>
+<div class="table-container">
+    <mat-table [dataSource]="dataSource" matSort>
+    
+        <ng-container *ngFor="let header of headers" matColumnDef="{{header}}">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> {{header}} </mat-header-cell>
+            <mat-cell *matCellDef="let row"> {{getValue(header, row)}} </mat-cell>
+        </ng-container>
+    
+        <mat-header-row *matHeaderRowDef="headers"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: headers;"></mat-row>
+    </mat-table>
+</div>

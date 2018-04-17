@@ -7,6 +7,9 @@
     <button mat-button (click)="_dummyCall('Go Data')">Go Data</button>
     <button mat-button (click)="_dummyCall('Go Analyze')">Go Analyze</button>
     <button mat-button (click)="_dummyCall('Go Dash')">Go Dash</button>
+    <button mat-button (click)="_dummyCall('Show sheets')">Show sheets</button>
+    <button mat-button (click)="_dummyCall('Load sheet 1')">Load sheet 1</button>
+    <button mat-button (click)="_dummyCall('Load sheet 2')">Load sheet 2</button>
 
     <button mat-button color="primary" *ngIf="tabIndex == 0" (click)="_dummyCall('Filter contains')">Filter contains</button>
     <button mat-button color="primary" *ngIf="tabIndex == 0" (click)="_dummyCall('Filter between')" disabled>Filter between</button>

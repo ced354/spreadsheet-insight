@@ -14,15 +14,17 @@ export class ChartBasicComponent implements OnChanges {
   chartOption: any;
   
   constructor(){
-    
+
   }
 
   ngOnChanges(changes: SimpleChanges): void {
 
-    setTimeout((e) => {
-      this.showChart();
-    }, 100);
-   
+    if(changes.workSheet && changes.workSheet.currentValue != null){
+      setTimeout((e) => {
+        this.showChart();
+      }, 100);
+    }
+
   }
 
   
@@ -31,6 +33,11 @@ export class ChartBasicComponent implements OnChanges {
     if(!this.workSheet){
       return;
     }
+
+
+    //normal load
+    //sorted by one column
+    //grouped by one column; aggregate
 
     let seriesData: any[] = [];
 
