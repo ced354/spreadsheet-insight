@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { IWorksheet } from '../../models/workbook';
 import * as $ from 'jquery';
-import { BaseColumn } from '../../models/chart-basic-param';
+import { BaseColumn, TargetColumn } from '../../models/chart-basic-param';
 
 @Component({
   selector: 'chart-basic',
@@ -13,6 +13,7 @@ export class ChartBasicComponent implements OnChanges {
   
   @Input() workSheet: IWorksheet;
   @Input() baseColumn: BaseColumn;
+  @Input() targetColumn: TargetColumn;
 
   echartsInstance: any;
   chartOption: any;
@@ -30,9 +31,11 @@ export class ChartBasicComponent implements OnChanges {
     }
 
     if(changes.baseColumn && changes.baseColumn.currentValue != null){
-      setTimeout((e) => {
-        this.showChart();
-      }, 100);
+      
+    }
+
+    if(changes.targetColumn && changes.targetColumn.currentValue != null){
+      
     }
 
   }
@@ -42,6 +45,12 @@ export class ChartBasicComponent implements OnChanges {
   }
 
   
+  getValuesByColumn(row){
+    return this.targetColumn.Columns.map(column => {
+      return {column: column, value: row[column.Name]}
+    });
+  }
+
   showChart(): void{
 
     if(!this.workSheet){
@@ -62,48 +71,64 @@ export class ChartBasicComponent implements OnChanges {
       return {
         id: index,
         name: row['Strategic Objective'],
-        value: 0
+        value: this.getValuesByColumn(row)
       };
     });
 
     if(this.baseColumn.Grouped){
       let groupedObj = this.groupBy(dataHolder, "name");
 
-      dataHolder = groupedObj.map(obj => {
-        return obj[0];
+      this.targetColumn.Columns.map(column => {
+        return (column) => {
+          if(column.Aggregate == 0){
+            
+          }
+        };
       });
     }
 
     if(this.baseColumn.Sort == 'asc'){
       dataHolder.sort((a,b) => {
-        return (a['Strategic Objective'] > b['Strategic Objective']) ? 1 : ((b['Strategic Objective'] > a['Strategic Objective']) ? -1 : 0);
+        return (a[this.baseColumn.Name] > b[this.baseColumn.Name]) ? 1 : ((b[this.baseColumn.Name] > a[this.baseColumn.Name]) ? -1 : 0);
       });
     }else if(this.baseColumn.Sort == 'desc'){
       dataHolder.sort((a,b) => {
-        return (a['Strategic Objective'] < b['Strategic Objective']) ? 1 : ((b['Strategic Objective'] < a['Strategic Objective']) ? -1 : 0);
+        return (a[this.baseColumn.Name] < b[this.baseColumn.Name]) ? 1 : ((b[this.baseColumn.Name] < a[this.baseColumn.Name]) ? -1 : 0);
       });
     }
-    
-    
-
-    console.log(dataHolder);
-    console.log(obj);
 
     let seriesData: any[] = [];
 
-    let xData = this.workSheet.Values.map(row => {
-      return row['Strategic Objective'];
+    let xData = dataHolder.map(data => {
+      return data.name;
     });
 
-    this.workSheet.Headers.forEach(column => {
-      let columnData = this.workSheet.Values.map(row => {
-        if($.isNumeric(row[column])){
-          return row[column];
+    //let xData = this.workSheet.Values.map(row => {
+    //  return row['Strategic Objective'];
+    //});
+
+    this.targetColumn.Columns.forEach(column => {
+
+      this.workSheet.Values.forEach(row => {
+
+        let value = 0;
+        if($.isNumeric(row[column.Name])){
+          value = row[column.Name];
         }
-        else{
-          return 0;
+        
+        switch(column.Aggregate){
+          case 0:
+            dataHolder.find(data => data.name == row[this.baseColumn.Name]).value.push(1);
+          break;
+          default:
+            dataHolder.find(data => data.name == row[this.baseColumn.Name]).value.push(value);
+          break;
         }
       });
+
+
+
+      
 
       let data = {
         name: column,
@@ -113,6 +138,10 @@ export class ChartBasicComponent implements OnChanges {
       };
 
       seriesData.push(data);
+    });
+
+    this.workSheet.Headers.forEach(column => {
+      
     });
 
     this.chartOption = {
