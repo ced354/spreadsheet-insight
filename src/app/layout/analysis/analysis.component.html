@@ -4,6 +4,11 @@
 
     <xlsx-file-upload (oWorkbook)="onWorkbookChanged($event)"></xlsx-file-upload>
 
+    <mat-form-field class="example-full-width">
+      <input matInput placeholder="Type in command" [(ngModel)]="command" (keyup)="onKey($event)">
+    </mat-form-field>
+    
+    <!--
     <button mat-button (click)="_dummyCall('Go Data')">Go Data</button>
     <button mat-button (click)="_dummyCall('Go Analyze')">Go Analyze</button>
     <button mat-button (click)="_dummyCall('Go Dash')">Go Dash</button>
@@ -23,6 +28,7 @@
     <button mat-button color="primary" *ngIf="tabIndex == 1" (click)="_dummyCall('Show pie')">Show pie</button>
     <button mat-button color="primary" *ngIf="tabIndex == 1" (click)="_dummyCall('Show word')">Show word</button>
     <button mat-button color="primary" *ngIf="tabIndex == 1" (click)="_dummyCall('Show force')">Show force</button>
+    -->
 
     <mat-tab-group class="demo-tab-group" (focusChange)="onFocusedTabChanged($event)" [selectedIndex]="tabIndex">
       <mat-tab label="Tab 1">
@@ -40,7 +46,6 @@
           <mat-icon>insert_chart</mat-icon>
         </ng-template>
         <div class="demo-tab-content">
-          TODO : show analysis and customization here (separate components for qualitative and quantitative)
 
           <chart-basic *ngIf="showDiagram == 1" [workSheet]="workSheet"></chart-basic>
           <chart-pie *ngIf="showDiagram == 2" [workSheet]="workSheet"></chart-pie>
@@ -149,8 +154,9 @@
   </div>
   <div class="item item-3" fxFlex="19%">
     <div class="full-container">
-      Response logs
-      <div *ngFor="let log of logs">{{log}}</div>
+      <mat-list>
+        <mat-list-item *ngFor="let log of logs">{{log}}</mat-list-item>
+      </mat-list>
     </div>
   </div>
 </div>

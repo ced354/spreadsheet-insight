@@ -3,7 +3,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { MatGridListModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatCardModule, MatTableModule, MatSelectModule, MatDatepicker, MatDatepickerModule, MatNativeDateModule, MatIconModule, MatTabsModule, MatPaginatorModule, MatSortModule, MatSnackBarModule } from '@angular/material';
+import { MatGridListModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatCardModule, MatTableModule, MatSelectModule, MatDatepicker, MatDatepickerModule, MatNativeDateModule, MatIconModule, MatTabsModule, MatPaginatorModule, MatSortModule, MatSnackBarModule, MatListModule } from '@angular/material';
 
 import { XlsxFileUploadComponent } from './components/xlsx-file-upload/xlsx-file-upload.component';
 import { FileUploadModule } from 'ng2-file-upload';
@@ -38,6 +38,7 @@ import { CommonModule } from '@angular/common';
     MatPaginatorModule,
     MatSortModule,
     MatSnackBarModule,
+    MatListModule,
     FileUploadModule,
     NgxEchartsModule
   ],
@@ -61,6 +62,7 @@ import { CommonModule } from '@angular/common';
     MatPaginatorModule,
     MatSortModule,
     MatSnackBarModule,
+    MatListModule,
     NgxEchartsModule,
     XlsxFileUploadComponent,
     ChartBasicComponent,

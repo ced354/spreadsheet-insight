@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { IWorksheet } from '../../models/workbook';
 import * as $ from 'jquery';
+import { BaseColumn } from '../../models/chart-basic-param';
 
 @Component({
   selector: 'chart-basic',
@@ -11,6 +12,9 @@ import * as $ from 'jquery';
 export class ChartBasicComponent implements OnChanges {
   
   @Input() workSheet: IWorksheet;
+  @Input() baseColumn: BaseColumn;
+
+  echartsInstance: any;
   chartOption: any;
   
   constructor(){
@@ -25,6 +29,16 @@ export class ChartBasicComponent implements OnChanges {
       }, 100);
     }
 
+    if(changes.baseColumn && changes.baseColumn.currentValue != null){
+      setTimeout((e) => {
+        this.showChart();
+      }, 100);
+    }
+
+  }
+
+  onChartInit(e: any) {
+    this.echartsInstance = e;
   }
 
   
@@ -38,6 +52,42 @@ export class ChartBasicComponent implements OnChanges {
     //normal load
     //sorted by one column
     //grouped by one column; aggregate
+
+
+    // baseColumn
+    // sorted?
+    // grouped? 
+
+    let dataHolder = this.workSheet.Values.map((row, index) => {
+      return {
+        id: index,
+        name: row['Strategic Objective'],
+        value: 0
+      };
+    });
+
+    if(this.baseColumn.Grouped){
+      let groupedObj = this.groupBy(dataHolder, "name");
+
+      dataHolder = groupedObj.map(obj => {
+        return obj[0];
+      });
+    }
+
+    if(this.baseColumn.Sort == 'asc'){
+      dataHolder.sort((a,b) => {
+        return (a['Strategic Objective'] > b['Strategic Objective']) ? 1 : ((b['Strategic Objective'] > a['Strategic Objective']) ? -1 : 0);
+      });
+    }else if(this.baseColumn.Sort == 'desc'){
+      dataHolder.sort((a,b) => {
+        return (a['Strategic Objective'] < b['Strategic Objective']) ? 1 : ((b['Strategic Objective'] < a['Strategic Objective']) ? -1 : 0);
+      });
+    }
+    
+    
+
+    console.log(dataHolder);
+    console.log(obj);
 
     let seriesData: any[] = [];
 
@@ -148,6 +198,31 @@ export class ChartBasicComponent implements OnChanges {
       //]
       };
   }
+
+  groupBy(collection, property) {
+    var i = 0, val, index,
+      values = [], result = [];
+    for (; i < collection.length; i++) {
+      val = collection[i][property];
+      index = values.indexOf(val);
+      if (index > -1)
+        result[index].push(collection[i]);
+      else {
+        values.push(val);
+        result.push([collection[i]]);
+      }
+    }
+    return result;
+  }
+
+  compare(a,b) {
+    if (a.last_nom < b.last_nom)
+      return -1;
+    if (a.last_nom > b.last_nom)
+      return 1;
+    return 0;
+  }
+  
   
 
   
