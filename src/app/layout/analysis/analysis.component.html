@@ -47,8 +47,8 @@
         </ng-template>
         <div class="demo-tab-content">
 
-          <chart-basic *ngIf="showDiagram == 1" [workSheet]="workSheet"></chart-basic>
-          <chart-pie *ngIf="showDiagram == 2" [workSheet]="workSheet"></chart-pie>
+          <chart-basic *ngIf="showDiagram == 1" [workSheet]="workSheet" [param]="basicParam"></chart-basic>
+          <container-pie *ngIf="showDiagram == 2" [workSheet]="workSheet"></container-pie>
           <word-cloud *ngIf="showDiagram == 3" [workSheet]="workSheet"></word-cloud>
           <force-directed *ngIf="showDiagram == 4" [workSheet]="workSheet"></force-directed>
 
@@ -155,7 +155,7 @@
   <div class="item item-3" fxFlex="19%">
     <div class="full-container">
       <mat-list>
-        <mat-list-item *ngFor="let log of logs">{{log}}</mat-list-item>
+        <mat-list-item *ngFor="let log of logs" draggable="true" (dragenter)="dragenter($event)" (dragstart)="dragstart($event)" [disableRipple]="true">{{log}}</mat-list-item>
       </mat-list>
     </div>
   </div>

@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { IWorksheet } from '../../models/workbook';
 import * as $ from 'jquery';
-import { BaseColumn, TargetColumn } from '../../models/chart-basic-param';
+import { ChartBasicParam } from '../../models/chart-basic-param';
 
 @Component({
   selector: 'chart-basic',
@@ -12,32 +12,37 @@ import { BaseColumn, TargetColumn } from '../../models/chart-basic-param';
 export class ChartBasicComponent implements OnChanges {
   
   @Input() workSheet: IWorksheet;
-  @Input() baseColumn: BaseColumn;
-  @Input() targetColumn: TargetColumn;
+  @Input() param: ChartBasicParam;
 
   echartsInstance: any;
   chartOption: any;
   
   constructor(){
 
+    //this.param.Base = { Name: 'Strategic Objective', Grouped: false, Sort: 0 };
+    //this.param.Target = {
+    //  Columns: [{Name: 'Weight', Aggregate: 1}, {Name: 'Target % Perfomance', Aggregate: 2}]
+    //};
   }
 
   ngOnChanges(changes: SimpleChanges): void {
 
-    if(changes.workSheet && changes.workSheet.currentValue != null){
-      setTimeout((e) => {
-        this.showChart();
-      }, 100);
-    }
+    if(changes.param && changes.param.currentValue != null){
+      if(changes.param.currentValue.Base && changes.param.currentValue.Base != null){
 
-    if(changes.baseColumn && changes.baseColumn.currentValue != null){
-      
-    }
+          if(!this.workSheet || this.workSheet == null){
+            return;
+          }
 
-    if(changes.targetColumn && changes.targetColumn.currentValue != null){
-      
-    }
+          if(!this.param.Targets || this.param.Targets == null){
+            this.param.Targets = [];
+          }
 
+          setTimeout((e) => {
+            this.showChart();
+          }, 100);
+      }
+    }
   }
 
   onChartInit(e: any) {
@@ -46,8 +51,14 @@ export class ChartBasicComponent implements OnChanges {
 
   
   getValuesByColumn(row){
-    return this.targetColumn.Columns.map(column => {
-      return {column: column, value: row[column.Name]}
+    return this.param.Targets.map(column => {
+
+      let value = 0;
+      if($.isNumeric(row[column.Name])){
+        value = row[column.Name];
+      }
+
+      return {column: column, value: value}
     });
   }
 
@@ -57,43 +68,58 @@ export class ChartBasicComponent implements OnChanges {
       return;
     }
 
-
-    //normal load
-    //sorted by one column
-    //grouped by one column; aggregate
-
-
-    // baseColumn
-    // sorted?
-    // grouped? 
-
     let dataHolder = this.workSheet.Values.map((row, index) => {
       return {
         id: index,
-        name: row['Strategic Objective'],
-        value: this.getValuesByColumn(row)
+        name: row[this.param.Base.Name],
+        values: this.getValuesByColumn(row)
       };
     });
 
-    if(this.baseColumn.Grouped){
+    if(this.param.Base.Grouped){
       let groupedObj = this.groupBy(dataHolder, "name");
 
-      this.targetColumn.Columns.map(column => {
-        return (column) => {
-          if(column.Aggregate == 0){
-            
-          }
+      dataHolder = groupedObj.map((group, index) => {
+
+        let newDataHolder = {
+          id: index,
+          name: group[0].name,
+          values: group[0].values,
         };
+
+        this.param.Targets.forEach(column => {
+
+          let allColumnValues = group.map(item => {
+            return item.values.find(value => value.column.Name == column.Name).value;
+          });
+
+          let aggregate: number = 0;
+          if(column.Aggregate == 0){
+            aggregate = allColumnValues.length;
+          } else if(column.Aggregate == 1){
+            aggregate = allColumnValues.reduce((a,b) => a + b, 0);
+          } else if(column.Aggregate == 2){
+            aggregate = allColumnValues.reduce((a,b) => a + b, 0) / allColumnValues.length;
+          } else if(column.Aggregate == 3){
+            aggregate = Math.min(...allColumnValues);
+          } else if(column.Aggregate == 4){
+            aggregate = Math.max(...allColumnValues);
+          }
+
+          newDataHolder.values.find(value => value.column.Name == column.Name).value = aggregate;
+        });
+
+        return newDataHolder;
       });
     }
 
-    if(this.baseColumn.Sort == 'asc'){
+    if(this.param.Base.Sort == 1){
       dataHolder.sort((a,b) => {
-        return (a[this.baseColumn.Name] > b[this.baseColumn.Name]) ? 1 : ((b[this.baseColumn.Name] > a[this.baseColumn.Name]) ? -1 : 0);
+        return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);
       });
-    }else if(this.baseColumn.Sort == 'desc'){
+    }else if(this.param.Base.Sort == 2){
       dataHolder.sort((a,b) => {
-        return (a[this.baseColumn.Name] < b[this.baseColumn.Name]) ? 1 : ((b[this.baseColumn.Name] < a[this.baseColumn.Name]) ? -1 : 0);
+        return (b.name > a.name) ? 1 : ((a.name > b.name) ? -1 : 0);
       });
     }
 
@@ -103,45 +129,21 @@ export class ChartBasicComponent implements OnChanges {
       return data.name;
     });
 
-    //let xData = this.workSheet.Values.map(row => {
-    //  return row['Strategic Objective'];
-    //});
+    this.param.Targets.forEach(column => {
 
-    this.targetColumn.Columns.forEach(column => {
-
-      this.workSheet.Values.forEach(row => {
-
-        let value = 0;
-        if($.isNumeric(row[column.Name])){
-          value = row[column.Name];
-        }
-        
-        switch(column.Aggregate){
-          case 0:
-            dataHolder.find(data => data.name == row[this.baseColumn.Name]).value.push(1);
-          break;
-          default:
-            dataHolder.find(data => data.name == row[this.baseColumn.Name]).value.push(value);
-          break;
-        }
+      let columnData = dataHolder.map(data => {
+        return data.values.find(value => value.column.Name == column.Name).value;
       });
 
-
-
-      
-
       let data = {
-        name: column,
+        name: column.Name,
         type: 'line',
-        stack: this.workSheet.Name,
-        data: columnData
+        stack: column.Name,
+        data: columnData,
+        areaStyle: {normal: {}}
       };
 
       seriesData.push(data);
-    });
-
-    this.workSheet.Headers.forEach(column => {
-      
     });
 
     this.chartOption = {
@@ -152,7 +154,7 @@ export class ChartBasicComponent implements OnChanges {
         trigger: 'axis'
       },
       legend: {
-        data: this.workSheet.Headers
+        data: this.param.Targets.map(column => column.Name)
       },
       toolbox: {
         feature: {
@@ -182,58 +184,18 @@ export class ChartBasicComponent implements OnChanges {
         }
       ],
       series: seriesData
-      //series : [
-      //  {
-      //    name:'邮件营销',
-      //    type:'line',
-      //    stack: '总量',
-      //    areaStyle: {normal: {}},
-      //    data:[120, 132, 101, 134, 90, 230, 210]
-      //  },
-      //  {
-      //    name:'联盟广告',
-      //    type:'line',
-      //    stack: '总量',
-      //    areaStyle: {normal: {}},
-      //    data:[220, 182, 191, 234, 290, 330, 310]
-      //  },
-      //  {
-      //    name:'视频广告',
-      //    type:'line',
-      //    stack: '总量',
-      //    areaStyle: {normal: {}},
-      //    data:[150, 232, 201, 154, 190, 330, 410]
-      //  },
-      //  {
-      //    name:'直接访问',
-      //    type:'line',
-      //    stack: '总量',
-      //    areaStyle: {normal: {}},
-      //    data:[320, 332, 301, 334, 390, 330, 320]
-      //  },
-      //  {
-      //    name:'搜索引擎',
-      //    type:'line',
-      //    stack: '总量',
-      //    label: {
-      //      normal: {
-      //        show: true,
-      //        position: 'top'
-      //      }
-      //    },
-      //    areaStyle: {normal: {}},
-      //    data:[820, 932, 901, 934, 1290, 1330, 1320]
-      //  }
-      //]
-      };
+    };
   }
 
   groupBy(collection, property) {
     var i = 0, val, index,
       values = [], result = [];
+
     for (; i < collection.length; i++) {
       val = collection[i][property];
       index = values.indexOf(val);
+
+      // if exists
       if (index > -1)
         result[index].push(collection[i]);
       else {
@@ -252,8 +214,6 @@ export class ChartBasicComponent implements OnChanges {
     return 0;
   }
   
-  
-
   
 
 }

@@ -1,14 +1,15 @@
-export interface BaseColumn{
+export class ChartBasicParam{
+    Base: IBaseColumn;
+    Targets: ITargetAggregate[];
+}
+
+export interface IBaseColumn{
     Name: string;
-    Sort: string; // 0:none. 1:asc, 2:desc
+    Sort: number; // 0:none. 1:asc, 2:desc
     Grouped: boolean;
 }
 
-export interface TargetColumn{
-    Columns: TargetAggregate[];
-}
-
-export interface TargetAggregate{
+export interface ITargetAggregate{
     Name: string;
     Aggregate: number; // 0:count, 1:sum, 2: ave, 3: min, 4:max
 }

@@ -37,9 +37,9 @@ export class ForceDirectedComponent implements OnChanges {
       return;
     }
 
-    let firstLevel = 'Owner Department';
-    let secondLevel = 'Strategic Objective';
-    let scale = 'Weight';
+    let firstLevel = 'State';
+    let secondLevel = 'Customer Name';
+    let scale = 'Customer Name';
 
     let nodes: any[] = [];
     let connections: any[] = [];
@@ -139,7 +139,10 @@ export class ForceDirectedComponent implements OnChanges {
           layout: 'force',
 
           force: {
-              repulsion: 50
+              // initLayout: 'circular'
+              // gravity: 0
+              repulsion: 50,
+              //edgeLength: 5
           },
           data: nodes,
           links: connections,

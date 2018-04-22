@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { IWorksheet } from '../../models/workbook';
 import * as $ from 'jquery';
+import { ChartPieParam } from '../../models/chart-pie-param';
 
 @Component({
   selector: 'chart-pie',
@@ -11,26 +12,71 @@ import * as $ from 'jquery';
 export class ChartPieComponent implements OnChanges {
   
   @Input() workSheet: IWorksheet;
+  @Input() param: ChartPieParam;
+
+  
+
+  currentLevel: number;
+
   chartOption: any;
 
   echartsInstance: any;
+
+  drillHistory: any;
   
   constructor(){
+
+    this.currentLevel = 0;
+    this.drillHistory = [];
   }
 
   ngOnChanges(changes: SimpleChanges): void {
 
-    setTimeout((e) => {
-      this.showChart();
-    }, 100);
+    if(changes.param && changes.param.currentValue != null){
+
+      console.log('Reloaded');
+      setTimeout((e) => {
+        
+        this.drillHistory = [];
+        this.showChart();
+      }, 100);
+    }
+    
+    
    
   }
 
   onChartInit(e: any) {
     this.echartsInstance = e;
 
+    this.echartsInstance.on('click', (param) => {
+
+      if(this.currentLevel == this.param.Levels.length - 1){
+        return;
+      }
+      
+      if(param.seriesIndex == 0){
+        this.drillHistory = [{seriesName:param.seriesName, name:param.name}];
+      }
+      else{
+        this.drillHistory.push({seriesName:param.seriesName, name:param.name});
+      }
+      
+      this.currentLevel += 1;
+      this.showChart();
+    });
+
   }
 
+  onDrillUp(): void{
+
+    if(this.currentLevel > 0){
+      this.currentLevel -= 1;
+
+      this.drillHistory.pop();
+      this.showChart();
+    }
+  }
   
   showChart(): void{
 
@@ -38,64 +84,49 @@ export class ChartPieComponent implements OnChanges {
       return;
     }
 
-    let firstLevel = 'Owner Department';
-    let secondLevel = 'Strategic Objective';
-    let scale = 'Weight';
+    let level = this.param.Levels[this.currentLevel];
+    let scale = this.param.Scale;
 
-    let firstNodes: any[] = [];
-    let secondNodes: any[] = [];
+    let levelNodes: any[] = [];
 
     let columnData = this.workSheet.Values.forEach(row => {
 
-      let firstValue = row[firstLevel];
-      let secondValue = row[secondLevel];
+      let isInclude = true;
+      this.drillHistory.forEach(history => {
+        if(row[history.seriesName] != history.name){
+          isInclude = false;
+        }
+      });
 
-      if(firstNodes.find(d => d.name == firstValue)){
+      if(!isInclude){
+        return;
+      }
 
-        if($.isNumeric(row[scale])){
-          firstNodes.find(d => d.name == firstValue).value += row[scale];
+      let value = row[level];
+
+      if(levelNodes.find(d => d.name == value)){
+
+        if(scale != 'none' && $.isNumeric(row[scale])){
+          levelNodes.find(d => d.name == value).value += row[scale];
         }
         else{
-          firstNodes.find(d => d.name == firstValue).value += 1;
+          levelNodes.find(d => d.name == value).value += 1;
         }
       }
       else{
 
         let scaleValue = 1;
-        if($.isNumeric(row[scale])){
+        if(scale != 'none' && $.isNumeric(row[scale])){
             scaleValue = row[scale];
         }
 
-        firstNodes.push({
-            name: firstValue,
+        levelNodes.push({
+            name: value,
             value: scaleValue
         });
       }
-
-      if(secondNodes.find(d => d.name == secondValue)){
-
-        if($.isNumeric(row[scale])){
-          secondNodes.find(d => d.name == secondValue).value += row[scale];
-        }
-        else{
-          secondNodes.find(d => d.name == secondValue).value += 1;
-        }
-      }
-      else{
-        
-        let scaleValue = 1;
-        if($.isNumeric(row[scale])){
-            scaleValue = row[scale];
-        }
-
-        secondNodes.push({
-            name: secondValue,
-            value: scaleValue
-        });
-      }
-      
-
     });
+
 
     /* drill down
     let newOption = {
@@ -148,12 +179,12 @@ export class ChartPieComponent implements OnChanges {
     calculable : true,
     series : [
         {
-            name: firstLevel,
+            name: level,
             type:'pie',
             radius : [30, 110],
             center : ['50%', '50%'],
             roseType : 'area',
-            data: firstNodes
+            data: levelNodes
         }
     ]
     };

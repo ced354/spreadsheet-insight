@@ -6,6 +6,7 @@ import { MatTableDataSource, MatPaginator, MatSort } from '@angular/material';
 import { IWorkbook, IWorksheet } from '../../shared/models/workbook';
 import { ChartParam } from '../../shared/models/chart-param';
 import { ListenerBase } from '../listener-base';
+import { ChartBasicParam } from '../../shared/models/chart-basic-param';
 
 @Component({
   selector: 'app-analysis',
@@ -30,6 +31,8 @@ export class AnalysisComponent extends ListenerBase implements OnInit, OnDestroy
 
   command: string;
   
+
+  basicParam: ChartBasicParam = new ChartBasicParam();
 
   tiles = [
     {text: 'One', cols: 3, rows: 1, color: 'lightblue'},
@@ -161,13 +164,13 @@ export class AnalysisComponent extends ListenerBase implements OnInit, OnDestroy
     switch(param){
 
       // common
-      case 'Show Help':
+      case 'show help':
         let help:string[] = [];
         
         if(this.tabIndex == 0){
 
           help = ['Go [data/analyze/dash]',
-                  'Show help',
+                  'show help',
                   'show sheets',
                   'load []',
                   'search [string]',
@@ -183,9 +186,9 @@ export class AnalysisComponent extends ListenerBase implements OnInit, OnDestroy
         }
         else if(this.tabIndex == 1){
 
-          if(this.showDiagram = 1){
+          if(this.showDiagram == 1){
             help = ['Go [data/analyze/dash]',
-                    'Show help',
+                    'show help',
                     'Load [wordcloud/semantic/sentiment/pie/line/column/sankey]',
                     'Line add base [column] [color]',
                     'Line add value [column] [count/sum/ave/min/max]',
@@ -196,9 +199,9 @@ export class AnalysisComponent extends ListenerBase implements OnInit, OnDestroy
                     'Line clear',
                     'Line dash'];
           }
-          else if(this.showDiagram = 2){
+          else if(this.showDiagram == 2){
             help = ['Go [data/analyze/dash]',
-                    'Show help',
+                    'show help',
                     'Load [wordcloud/semantic/sentiment/pie/line/column/sankey]',
                     'Pie add [column] [count/sum/ave/min/max] [color]',
                     'Pie remove [column]',
@@ -206,18 +209,18 @@ export class AnalysisComponent extends ListenerBase implements OnInit, OnDestroy
                     'Pie clear',
                     'Pie dash'];
           }
-          else if(this.showDiagram = 3){
+          else if(this.showDiagram == 3){
             help = ['Go [data/analyze/dash]',
-                    'Show help',
+                    'show help',
                     'Load [wordcloud/semantic/sentiment/pie/line/column/sankey]',
                     'Wordcloud [all/column]',
                     'Wordcloud remove [word]',
                     'Wordcloud reset [word]',
                     'Wordcloud dash'];
           }
-          else if(this.showDiagram = 4){
+          else if(this.showDiagram == 4){
             help = ['Go [data/analyze/dash]',
-                    'Show help',
+                    'show help',
                     'Load [wordcloud/semantic/sentiment/pie/line/column/sankey]',
                     'Force add [column] [color]',
                     'Force remove [column] [color]',
@@ -227,13 +230,13 @@ export class AnalysisComponent extends ListenerBase implements OnInit, OnDestroy
           }
           else{
             help = ['Go [data/analyze/dash]',
-                    'Show help',
-                    'Load [wordcloud/semantic/sentiment/pie/line/column/sankey]'];
+                    'show help',
+                    'show [wordcloud/semantic/sentiment/pie/line/column/sankey]'];
           }
         }
         else if(this.tabIndex == 2){
           help = ['Go [data/analyze/dash]',
-                  'Show help',
+                  'show help',
                   'Dash move [temp-name] [position]',
                   'Dash size [temp-name] [1/2/full]'];
         }
@@ -279,19 +282,103 @@ export class AnalysisComponent extends ListenerBase implements OnInit, OnDestroy
       break;
 
       // analyze tab
-      case 'Show line':
+      case 'show columns':
+        this.logs = this.headers;
+      break;
+
+      case 'show line':
         this.showDiagram = 1;
       break;
-      case 'Show pie':
+      case 'line base [] [] []':
+        this.basicParam.Base = {Name: matches[0], Sort: +matches[1], Grouped: (matches[2] == 'true')};
+
+        this.basicParam = JSON.parse(JSON.stringify(this.basicParam));
+      break;
+      case 'line add [] []':
+        if(this.basicParam.Targets && this.basicParam.Targets.length > 0){
+          this.basicParam.Targets.push({Name: matches[0], Aggregate: +matches[1]});
+        }
+        else{
+          this.basicParam.Targets = [{Name: matches[0], Aggregate: +matches[1]}];
+        }
+
+        this.basicParam = JSON.parse(JSON.stringify(this.basicParam));
+      break;
+      case 'line remove []':
+        let index = this.basicParam.Targets.findIndex(column => column.Name == matches[0]);
+        if (index > -1) {
+          this.basicParam.Targets.splice(index, 1);
+          this.basicParam = JSON.parse(JSON.stringify(this.basicParam));
+        }
+      break;
+      case 'line convert':
+        
+      break;
+      case 'line required':
+        this.logs = ['line base [column] [sort:0/1/2] [grouped:true/false]',
+                     'line add [column] [aggregate:0(count)/1(sum)/2(ave)/3(min)/4(max)]'];
+      break;
+      case 'line parameters':
+        this.logs = ['Base : ' + this.basicParam.Base.Name];
+
+        this.logs = this.logs.concat(this.basicParam.Targets.map(column => {return 'Target : ' + column.Name;}));
+      break;
+      case 'line dash':
+        
+      break;
+
+      
+
+
+
+      case 'show pie':
         this.showDiagram = 2;
       break;
-      case 'Show word':
+      case 'show word':
         this.showDiagram = 3;
       break;
-      case 'Show force':
+      case 'show force':
         this.showDiagram = 4;
       break;
     }
   }
+
+
+  source: any;
+
+  /**
+   * CHECKS IF ONE ELEMENT LIES BEFORE THE OTHER
+  */
+  isbefore(a, b) {
+    if (a.parentNode == b.parentNode) {
+      for (var cur = a; cur; cur = cur.previousSibling) {
+        if (cur === b) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  /**
+ * LIST ITEM DRAP ENTERED
+ */
+dragenter($event) {
+  let target = $event.currentTarget;
+  if (this.isbefore(this.source, target)) {
+      target.parentNode.insertBefore(this.source, target); // insert before
+  }
+  else {
+      target.parentNode.insertBefore(this.source, target.nextSibling); //insert after
+  }
+}
+
+
+/**
+* LIST ITEM DRAG STARTED
+*/
+dragstart($event) {
+  this.source = $event.currentTarget;
+  $event.dataTransfer.effectAllowed = 'move';
+}
 
 }
