@@ -1,0 +1,30 @@
+<div class="container" fxLayout fxLayout.xs="column" fxLayoutAlign="center" fxLayoutGap="10px" fxLayoutGap.xs="0">
+    <div class="item item-1" fxFlex="18%">
+        <mat-list>
+            <mat-list-item *ngFor="let column of workSheet.Headers" draggable="true" 
+                           (dragenter)="dragenter($event)" 
+                           (dragstart)="dragstart($event)"
+                           [disableRipple]="true">{{column}}</mat-list-item>
+        </mat-list>
+    </div>
+
+    <div class="item item-2" fxFlex>
+        <chart-pie [workSheet]="workSheet" [param]="param"></chart-pie>
+    </div>
+
+    <div class="item item-3" fxFlex="18%">
+        <mat-select placeholder="Scale" (selectionChange)="onScaleChanged($event)">
+          <mat-option>None</mat-option>
+          <mat-option *ngFor="let column of workSheet.Headers" [value]="column">{{column}}</mat-option>
+        </mat-select>
+
+        <mat-list class="height-300" (dragenter)="levelDragEnter($event)">
+            <!--mat-list-item *ngFor="let column of levels" draggable="true" 
+                           (dragenter)="dragenter($event)"
+                           (dragstart)="dragstart($event)"
+                           [disableRipple]="true">{{column}}</mat-list-item-->
+        </mat-list>
+        <mat-list></mat-list>
+    </div>
+</div>
+
