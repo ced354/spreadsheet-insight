@@ -4,7 +4,7 @@
 
     <xlsx-file-upload (oWorkbook)="onWorkbookChanged($event)"></xlsx-file-upload>
 
-    <mat-form-field class="example-full-width">
+    <mat-form-field>
       <input matInput placeholder="Type in command" [(ngModel)]="command" (keyup)="onKey($event)">
     </mat-form-field>
     
@@ -37,7 +37,7 @@
         </ng-template>
 
         <div class="demo-tab-content">
-          <analysis-data [workSheet]="workSheet" [filter]="filter" [sortColumn]="sortColumn" [page]="page"></analysis-data>
+          <analysis-data [workSheet]="workSheet" [filter]="filter" [sortColumn]="sortColumn" [page]="page" [showEmitter]="false"></analysis-data>
         </div>
 
       </mat-tab>
@@ -50,7 +50,7 @@
           <chart-basic *ngIf="showDiagram == 1" [workSheet]="workSheet" [param]="basicParam"></chart-basic>
           <container-pie *ngIf="showDiagram == 2" [workSheet]="workSheet"></container-pie>
           <word-cloud *ngIf="showDiagram == 3" [workSheet]="workSheet"></word-cloud>
-          <force-directed *ngIf="showDiagram == 4" [workSheet]="workSheet"></force-directed>
+          <container-force-directed *ngIf="showDiagram == 4" [workSheet]="workSheet"></container-force-directed>
 
         </div>
       </mat-tab>

@@ -34,16 +34,15 @@ export class ChartPieComponent implements OnChanges {
 
     if(changes.param && changes.param.currentValue != null){
 
-      console.log('Reloaded');
       setTimeout((e) => {
         
+        this.currentLevel = 0;
         this.drillHistory = [];
+
         this.showChart();
       }, 100);
     }
     
-    
-   
   }
 
   onChartInit(e: any) {

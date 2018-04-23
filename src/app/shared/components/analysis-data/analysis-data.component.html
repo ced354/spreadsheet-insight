@@ -2,6 +2,8 @@
     <input matInput [(ngModel)]="filter" (ngModelChange)="onFilterChanged()" placeholder="Filter">
 </mat-form-field>
 
+<button mat-button *ngIf="showEmitter" (click)="onApplyData()">Apply to Analytic</button>
+
 <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
 
 <mat-table [dataSource]="dataSource" matSort>

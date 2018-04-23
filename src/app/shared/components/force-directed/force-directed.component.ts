@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { IWorksheet } from '../../models/workbook';
 import * as $ from 'jquery';
+import { ForceDirectedParam } from '../../models/force-directed-param';
 
 @Component({
   selector: 'force-directed',
@@ -11,18 +12,26 @@ import * as $ from 'jquery';
 export class ForceDirectedComponent implements OnChanges {
   
   @Input() workSheet: IWorksheet;
+  @Input() param: ForceDirectedParam;
+
   chartOption: any;
 
   echartsInstance: any;
+
+  nodes: any[] = [];
+  connections: any[] = [];
   
   constructor(){
   }
 
   ngOnChanges(changes: SimpleChanges): void {
 
-    setTimeout((e) => {
-      this.showChart();
-    }, 100);
+    if(changes.param && changes.param.currentValue != null){
+      setTimeout((e) => {
+
+        this.showChart();
+      }, 100);
+    }
    
   }
 
@@ -30,79 +39,101 @@ export class ForceDirectedComponent implements OnChanges {
     this.echartsInstance = e;
   }
 
+
+  getNodes(row, currentLevel, levels){
+
+    if(this.param.Focus.trim() != '' && !row[this.param.Levels[0]].toLowerCase().includes(this.param.Focus.toLowerCase())){
+        return;
+    }
+
+    let nodeText = row[currentLevel];
+    let nodeName = row[currentLevel] + '_' + currentLevel;
+
+    if(this.nodes.find(n => n.name == nodeName)){
+
+        if(this.param.Scale != 'none' && $.isNumeric(row[this.param.Scale])){
+            this.nodes.find(n => n.name == nodeName).value += row[this.param.Scale];
+            this.nodes.find(n => n.name == nodeName).symbolSize += row[this.param.Scale];
+        }
+    }
+    else{
+    
+      let scaleValue = 0;
+      if(this.param.Scale != 'none' && $.isNumeric(row[this.param.Scale])){
+          scaleValue = row[this.param.Scale];
+      }
+    
+      this.nodes.push({
+          name: nodeName,
+          label: nodeText,
+          symbolSize: 1 + scaleValue,
+          draggable: "true",
+          category: this.param.Levels.indexOf(currentLevel),
+          value: scaleValue,
+          type: 0 // 0 means node, 1 means link 
+      });
+
+      if(levels.length > 0){
+          let prvLevel = levels[levels.length - 1];
+          let prvNodeText = row[prvLevel];
+          let prvNodeName = row[prvLevel] + '_' + prvLevel;
   
+          if(prvNodeName && nodeName && !this.connections.find(connection => connection.source == prvNodeName && connection.target == nodeName)){
+            this.connections.push({
+                source: prvNodeName,
+                target: nodeName,
+                sourceLabel: prvNodeText,
+                targetLabel: nodeText,
+                type: 1 // 0 means node, 1 means link 
+            });
+          }
+      }
+    }
+
+  }
+
   showChart(): void{
 
     if(!this.workSheet){
       return;
     }
 
-    let firstLevel = 'State';
-    let secondLevel = 'Customer Name';
-    let scale = 'Customer Name';
-
-    let nodes: any[] = [];
-    let connections: any[] = [];
+    this.nodes = [];
+    this.connections = [];
+    
     let columnData = this.workSheet.Values.forEach(row => {
 
-      let firstValue = row[firstLevel];
-      let secondValue = row[secondLevel];
+      let levels = [];
 
-      if(nodes.find(d => d.name == firstValue)){
-
-        if($.isNumeric(row[scale])){
-            nodes.find(d => d.name == firstValue).value += row[scale];
-            nodes.find(d => d.name == firstValue).symbolSize += row[scale];
-        }
-      }
-      else{
-
-        let scaleValue = 0;
-        if($.isNumeric(row[scale])){
-            scaleValue = row[scale];
-        }
-
-        nodes.push({
-            name: firstValue,
-            symbolSize: 1 + scaleValue,
-            draggable: "true",
-            category: firstLevel,
-            value: scaleValue
-        });
-      }
-
-      if(nodes.find(d => d.name == secondValue)){
-
-        if($.isNumeric(row[scale])){
-            nodes.find(d => d.name == secondValue).value += row[scale];
-            nodes.find(d => d.name == secondValue).symbolSize += row[scale];
-        }
-      }
-      else{
-        
-        let scaleValue = 0;
-        if($.isNumeric(row[scale])){
-            scaleValue = row[scale];
-        }
-
-        nodes.push({
-            name: secondValue,
-            symbolSize: 1 + scaleValue,
-            draggable: "true",
-            category: secondLevel,
-            value: scaleValue
-        });
-      }
-
-      if(!connections.find(connection => connection.source == firstValue && connection.target == secondValue) && firstValue && secondValue){
-        connections.push({
-            source: firstValue,
-            target: secondValue
-        });
-      }
+      this.param.Levels.forEach(level => {
+        this.getNodes(row, level, levels);
+        levels.push(level);
+      });
       
-
     });
+
+    let allSymbolSizes = this.nodes.map(node => {return node.symbolSize;});
+    let min = Math.min(...allSymbolSizes);
+    let max = Math.max(...allSymbolSizes);
+
+    console.log(this.nodes);
+
+    console.log(min);
+    console.log(max);
+
+    this.nodes = this.nodes.map(node => {
+        let numerator = node.symbolSize - min;
+        let denominator = max - min
+        if(numerator == 0 && denominator == 0){
+            node.symbolSize = 20;
+            return node;
+        }
+
+        node.symbolSize = (numerator / denominator) * 100;
+        return node;
+    });
+
+    console.log(this.nodes);
 
     this.chartOption = {
       title:{
@@ -144,21 +175,33 @@ export class ForceDirectedComponent implements OnChanges {
               repulsion: 50,
               //edgeLength: 5
           },
-          data: nodes,
-          links: connections,
-          categories: [{
-              name: firstLevel
-          },{
-              name: secondLevel
-          }],
+          data: this.nodes,
+          links: this.connections,
+          categories: this.param.Levels.map(level => { return {name: this.param.Levels.indexOf(level)};}),
           focusNodeAdjacency: true,
           roam: true,
           label: {
-              normal: {
-
-                  show: true,
-                  position: 'top',
-
+              show: true,
+              position: 'top',
+              formatter: (params) => {
+                  // if node else link
+                  if(params.data.type == 0){
+                    return params.data.label;
+                  }
+                  else{
+                    return params.data.sourceLabel + " - " + params.data.targetLabel
+                  }
+              }
+          },
+          tooltip: {
+              formatter: (params) => {  
+                if(params.data.type == 0){
+                    return params.data.label + ': ' + params.data.value ;
+                  }
+                  else{
+                    return params.data.sourceLabel + " - " + params.data.targetLabel
+                  }
+                  
               }
           },
           lineStyle: {

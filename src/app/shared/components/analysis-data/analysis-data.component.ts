@@ -14,6 +14,9 @@ export class AnalysisDataComponent implements OnChanges {
   @Input() filter: string;
   @Input() sortColumn: any;
   @Input() page: number;
+  @Input() showEmitter: boolean;
+
+  @Output() dataEmitter: EventEmitter<any> = new EventEmitter();
 
   dataSource: MatTableDataSource<any>;
   headers: string[];
@@ -45,6 +48,10 @@ export class AnalysisDataComponent implements OnChanges {
       this.dataSource.paginator = this.paginator;
     }
 
+  }
+
+  onApplyData(){
+    console.log(this.dataSource);
   }
 
   loadData(iData: any[]): void {

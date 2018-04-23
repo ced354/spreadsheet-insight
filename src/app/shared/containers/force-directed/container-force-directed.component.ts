@@ -1,25 +1,28 @@
 import { Component, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { IWorksheet } from '../../models/workbook';
 import * as $ from 'jquery';
-import { ChartPieParam } from '../../models/chart-pie-param';
+import { ForceDirectedParam } from '../../models/force-directed-param';
 
 @Component({
-  selector: 'container-pie',
-  templateUrl: './container-pie.component.html',
-  styleUrls: ['./container-pie.component.css']
+  selector: 'container-force-directed',
+  templateUrl: './container-force-directed.component.html',
+  styleUrls: ['./container-force-directed.component.css']
 })
 
-export class ContainerPieComponent implements OnChanges {
+export class ContainerForceDirectedComponent implements OnChanges {
   
   @Input() workSheet: IWorksheet;
 
-  param: ChartPieParam;
+  param: ForceDirectedParam;
 
   scale: string;
+
+  focus: string;
 
   constructor(){
 
     this.scale = 'none';
+    this.focus = '';
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -28,6 +31,15 @@ export class ContainerPieComponent implements OnChanges {
       
     }
 
+  }
+
+  onFocusChanged($event): void {
+
+    this.param = JSON.parse(JSON.stringify({
+      Levels: this.param.Levels,
+      Scale: this.scale,
+      Focus: $event
+    }));
   }
 
   source: any;
@@ -69,7 +81,8 @@ export class ContainerPieComponent implements OnChanges {
       
       this.param = JSON.parse(JSON.stringify({
         Levels: levels,
-        Scale: this.scale
+        Scale: this.scale,
+        Focus: this.focus
       }));
     }
 
@@ -104,7 +117,8 @@ export class ContainerPieComponent implements OnChanges {
     
     this.param = JSON.parse(JSON.stringify({
       Levels: levels,
-      Scale: this.scale
+      Scale: this.scale,
+      Focus: this.focus
     }));
 
   }
@@ -120,7 +134,8 @@ export class ContainerPieComponent implements OnChanges {
 
     this.param = JSON.parse(JSON.stringify({
       Levels: this.param.Levels,
-      Scale: this.scale
+      Scale: this.scale,
+      Focus: this.focus
     }));
   }
 

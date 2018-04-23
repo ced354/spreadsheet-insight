@@ -17,6 +17,7 @@ import { ChartPieComponent } from './components/chart-pie/chart-pie.component';
 import { AnalysisDataComponent } from './components/analysis-data/analysis-data.component';
 import { CommonModule } from '@angular/common';
 import { ContainerPieComponent } from './containers/chart-pie/container-pie.component';
+import { ContainerForceDirectedComponent } from './containers/force-directed/container-force-directed.component';
 
 @NgModule({
   imports: [
@@ -68,6 +69,7 @@ import { ContainerPieComponent } from './containers/chart-pie/container-pie.comp
     XlsxFileUploadComponent,
     ChartBasicComponent,
     WordCloudComponent,
+    ContainerForceDirectedComponent,
     ForceDirectedComponent,
     ContainerPieComponent,
     ChartPieComponent,
@@ -77,6 +79,7 @@ import { ContainerPieComponent } from './containers/chart-pie/container-pie.comp
     XlsxFileUploadComponent,
     ChartBasicComponent,
     WordCloudComponent,
+    ContainerForceDirectedComponent,
     ForceDirectedComponent,
     ContainerPieComponent,
     ChartPieComponent,
