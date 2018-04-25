@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { IWorksheet } from '../../models/workbook';
 import * as $ from 'jquery';
+import { WordCloudParam } from '../../models/word-cloud-param';
 
 @Component({
   selector: 'word-cloud',
@@ -11,6 +12,7 @@ import * as $ from 'jquery';
 export class WordCloudComponent implements OnChanges {
   
   @Input() workSheet: IWorksheet;
+  @Input() param: WordCloudParam;
   chartOption: any;
   
   constructor(){
@@ -18,10 +20,21 @@ export class WordCloudComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
 
-    setTimeout((e) => {
-      this.showChart();
-    }, 100);
-   
+    if(changes.param && changes.param.currentValue != null){
+
+      setTimeout((e) => {
+
+        this.showChart();
+      }, 100);
+    }
+
+    if(changes.workSheet && changes.workSheet.currentValue != null){
+      setTimeout((e) => {
+
+        this.showChart();
+      }, 100);
+    }
+
   }
 
   
@@ -31,21 +44,39 @@ export class WordCloudComponent implements OnChanges {
       return;
     }
 
+    if(!this.param){
+      return;
+    }
+
+    let scale = this.param.Scale;
+
     let words: any[] = [];
-    this.workSheet.Headers.forEach(column => {
+    this.param.Columns.forEach(column => {
       let columnData = this.workSheet.Values.forEach(row => {
 
-        let splitWords = row[column].toString().split(" ");
+        let splitWords = [];
+        if(scale == 'none'){
+          splitWords = row[column].toString().split(" ");
+        }
+        else{
+          splitWords = [row[column]];
+        }
+
+        let scaleValue = 1;
+        if(scale != 'none' && $.isNumeric(row[scale])){
+            scaleValue = row[scale];
+        }
 
         splitWords.forEach(word => {
 
           if(words.find(d => d.name == word)){
-            words.find(d => d.name == word).value += 1;
+            words.find(d => d.name == word).value += scaleValue;
           }
           else{
+
             words.push({
               name: word,
-              value: 1,
+              value: scaleValue,
               // Style of single text
               textStyle: {
                 normal: {},

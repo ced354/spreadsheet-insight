@@ -12,6 +12,8 @@ import { AnalysisComponent } from './layout/analysis/analysis.component';
 
 import { SpeechService } from './shared/services/speech.service';
 
+import 'hammerjs';
+
 
 @NgModule({
   declarations: [

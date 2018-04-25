@@ -49,7 +49,7 @@
 
           <chart-basic *ngIf="showDiagram == 1" [workSheet]="workSheet" [param]="basicParam"></chart-basic>
           <container-pie *ngIf="showDiagram == 2" [workSheet]="workSheet"></container-pie>
-          <word-cloud *ngIf="showDiagram == 3" [workSheet]="workSheet"></word-cloud>
+          <container-word-cloud *ngIf="showDiagram == 3" [workSheet]="workSheet"></container-word-cloud>
           <container-force-directed *ngIf="showDiagram == 4" [workSheet]="workSheet"></container-force-directed>
 
         </div>

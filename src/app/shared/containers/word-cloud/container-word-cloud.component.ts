@@ -1,21 +1,21 @@
 import { Component, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { IWorksheet } from '../../models/workbook';
 import * as $ from 'jquery';
-import { ChartPieParam } from '../../models/chart-pie-param';
+import { WordCloudParam } from '../../models/word-cloud-param';
 
 @Component({
-  selector: 'container-pie',
-  templateUrl: './container-pie.component.html',
-  styleUrls: ['./container-pie.component.css']
+  selector: 'container-word-cloud',
+  templateUrl: './container-word-cloud.component.html',
+  styleUrls: ['./container-word-cloud.component.css']
 })
 
-export class ContainerPieComponent implements OnChanges {
+export class ContainerWordCloudComponent implements OnChanges {
   
   @Input() workSheet: IWorksheet;
 
   analysisWorkSheet: IWorksheet;
 
-  param: ChartPieParam;
+  param: WordCloudParam;
 
   scale: string;
 
@@ -58,7 +58,7 @@ export class ContainerPieComponent implements OnChanges {
     if(target.parentNode != this.source.parentNode){
       
 
-      let levels = [];
+      let columns = [];
       for(let i = 0; i < this.source.parentNode.children.length; i++){
 
         let childText = this.source.parentNode.children[i].outerText.replace(/\r?\n|\r/g, '');
@@ -66,11 +66,11 @@ export class ContainerPieComponent implements OnChanges {
 
         if(sourceText == childText){ continue; }
 
-        levels.push(childText);
+        columns.push(childText);
       }
       
       this.param = JSON.parse(JSON.stringify({
-        Levels: levels,
+        Columns: columns,
         Scale: this.scale
       }));
     }
@@ -98,14 +98,14 @@ export class ContainerPieComponent implements OnChanges {
       target.appendChild(this.source);
     }
 
-    let levels = [];
+    let columns = [];
     for(let i = 0; i < target.children.length; i++){
       let sourceText = target.children[i].outerText.replace(/\r?\n|\r/g, '');
-      levels.push(sourceText);
+      columns.push(sourceText);
     }
     
     this.param = JSON.parse(JSON.stringify({
-      Levels: levels,
+      Columns: columns,
       Scale: this.scale
     }));
 
@@ -121,7 +121,7 @@ export class ContainerPieComponent implements OnChanges {
     }
 
     this.param = JSON.parse(JSON.stringify({
-      Levels: this.param.Levels,
+      Columns: this.param.Columns,
       Scale: this.scale
     }));
   }

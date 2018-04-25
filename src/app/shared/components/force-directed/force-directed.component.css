@@ -1,3 +1,7 @@
 .chart-basic {
   height: 400px;
 }
+
+.mat-slider-horizontal {
+  width: 100%;
+}

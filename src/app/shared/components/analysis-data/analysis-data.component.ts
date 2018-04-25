@@ -51,7 +51,7 @@ export class AnalysisDataComponent implements OnChanges {
   }
 
   onApplyData(){
-    console.log(this.dataSource);
+    this.dataEmitter.emit(this.dataSource.filteredData);
   }
 
   loadData(iData: any[]): void {

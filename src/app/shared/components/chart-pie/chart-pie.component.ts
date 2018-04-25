@@ -42,6 +42,16 @@ export class ChartPieComponent implements OnChanges {
         this.showChart();
       }, 100);
     }
+
+    if(changes.workSheet && changes.workSheet.currentValue != null){
+      setTimeout((e) => {
+
+        this.currentLevel = 0;
+        this.drillHistory = [];
+
+        this.showChart();
+      }, 100);
+    }
     
   }
 
@@ -80,6 +90,10 @@ export class ChartPieComponent implements OnChanges {
   showChart(): void{
 
     if(!this.workSheet){
+      return;
+    }
+
+    if(!this.param){
       return;
     }
 

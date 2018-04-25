@@ -2,8 +2,9 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
+import { TreeModule } from 'angular-tree-component';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { MatGridListModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatCardModule, MatTableModule, MatSelectModule, MatDatepicker, MatDatepickerModule, MatNativeDateModule, MatIconModule, MatTabsModule, MatPaginatorModule, MatSortModule, MatSnackBarModule, MatListModule } from '@angular/material';
+import { MatGridListModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatCardModule, MatTableModule, MatSelectModule, MatDatepicker, MatDatepickerModule, MatNativeDateModule, MatIconModule, MatTabsModule, MatPaginatorModule, MatSortModule, MatSnackBarModule, MatListModule, MatSliderModule } from '@angular/material';
 
 import { XlsxFileUploadComponent } from './components/xlsx-file-upload/xlsx-file-upload.component';
 import { FileUploadModule } from 'ng2-file-upload';
@@ -18,6 +19,7 @@ import { AnalysisDataComponent } from './components/analysis-data/analysis-data.
 import { CommonModule } from '@angular/common';
 import { ContainerPieComponent } from './containers/chart-pie/container-pie.component';
 import { ContainerForceDirectedComponent } from './containers/force-directed/container-force-directed.component';
+import { ContainerWordCloudComponent } from './containers/word-cloud/container-word-cloud.component';
 
 @NgModule({
   imports: [
@@ -25,6 +27,7 @@ import { ContainerForceDirectedComponent } from './containers/force-directed/con
     FormsModule,
     ReactiveFormsModule,
     HttpModule,
+    TreeModule,
     FlexLayoutModule,
     MatGridListModule,
     MatFormFieldModule,
@@ -41,6 +44,7 @@ import { ContainerForceDirectedComponent } from './containers/force-directed/con
     MatSortModule,
     MatSnackBarModule,
     MatListModule,
+    MatSliderModule,
     FileUploadModule,
     NgxEchartsModule
   ],
@@ -49,6 +53,7 @@ import { ContainerForceDirectedComponent } from './containers/force-directed/con
     FormsModule,
     ReactiveFormsModule,
     HttpModule,
+    TreeModule,
     FlexLayoutModule,
     MatGridListModule,
     MatFormFieldModule,
@@ -65,9 +70,11 @@ import { ContainerForceDirectedComponent } from './containers/force-directed/con
     MatSortModule,
     MatSnackBarModule,
     MatListModule,
+    MatSliderModule,
     NgxEchartsModule,
     XlsxFileUploadComponent,
     ChartBasicComponent,
+    ContainerWordCloudComponent,
     WordCloudComponent,
     ContainerForceDirectedComponent,
     ForceDirectedComponent,
@@ -78,6 +85,7 @@ import { ContainerForceDirectedComponent } from './containers/force-directed/con
   declarations: [
     XlsxFileUploadComponent,
     ChartBasicComponent,
+    ContainerWordCloudComponent,
     WordCloudComponent,
     ContainerForceDirectedComponent,
     ForceDirectedComponent,

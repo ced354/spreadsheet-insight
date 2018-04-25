@@ -15,6 +15,9 @@ export class ForceDirectedComponent implements OnChanges {
   @Input() param: ForceDirectedParam;
 
   chartOption: any;
+  repulsion: number;
+  showThumbLabel: boolean;
+  step: number;
 
   echartsInstance: any;
 
@@ -22,11 +25,22 @@ export class ForceDirectedComponent implements OnChanges {
   connections: any[] = [];
   
   constructor(){
+
+    this.repulsion = 50;
+    this.showThumbLabel = true;
+    this.step = 1;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
 
     if(changes.param && changes.param.currentValue != null){
+      setTimeout((e) => {
+
+        this.showChart();
+      }, 100);
+    }
+
+    if(changes.workSheet && changes.workSheet.currentValue != null){
       setTimeout((e) => {
 
         this.showChart();
@@ -40,14 +54,12 @@ export class ForceDirectedComponent implements OnChanges {
   }
 
 
-  getNodes(row, currentLevel, levels){
+  getNodes(row, node, levels, index){
 
-    if(this.param.Focus.trim() != '' && !row[this.param.Levels[0]].toLowerCase().includes(this.param.Focus.toLowerCase())){
-        return;
-    }
-
+    let currentLevel = node.name;
+    
     let nodeText = row[currentLevel];
-    let nodeName = row[currentLevel] + '_' + currentLevel;
+    let nodeName = row[currentLevel] + '_' + currentLevel + '_' + index;
 
     if(this.nodes.find(n => n.name == nodeName)){
 
@@ -68,28 +80,38 @@ export class ForceDirectedComponent implements OnChanges {
           label: nodeText,
           symbolSize: 1 + scaleValue,
           draggable: "true",
-          category: this.param.Levels.indexOf(currentLevel),
+          category: currentLevel, //this.param.Levels.indexOf(currentLevel),
           value: scaleValue,
           type: 0 // 0 means node, 1 means link 
       });
-
-      if(levels.length > 0){
-          let prvLevel = levels[levels.length - 1];
-          let prvNodeText = row[prvLevel];
-          let prvNodeName = row[prvLevel] + '_' + prvLevel;
-  
-          if(prvNodeName && nodeName && !this.connections.find(connection => connection.source == prvNodeName && connection.target == nodeName)){
-            this.connections.push({
-                source: prvNodeName,
-                target: nodeName,
-                sourceLabel: prvNodeText,
-                targetLabel: nodeText,
-                type: 1 // 0 means node, 1 means link 
-            });
-          }
-      }
     }
 
+    if(levels.length > 0){
+
+        let prvLevel = levels[levels.length - 1];
+        let prvNodeText = row[prvLevel];
+        let prvNodeName = row[prvLevel] + '_' + prvLevel + '_' + index;
+
+        if(prvNodeName && nodeName && !this.connections.find(connection => connection.source == prvNodeName && connection.target == nodeName)){
+          this.connections.push({
+              source: prvNodeName,
+              target: nodeName,
+              sourceLabel: prvNodeText,
+              targetLabel: nodeText,
+              type: 1 // 0 means node, 1 means link 
+          });
+        }
+    }
+
+    if(node.children){
+      node.children.forEach(childNode => {
+        levels.push(node.name);
+
+
+        this.getNodes(row, childNode, levels, index);
+      });
+    }
+    
   }
 
   showChart(): void{
@@ -98,16 +120,19 @@ export class ForceDirectedComponent implements OnChanges {
       return;
     }
 
+    if(!this.param){
+      return;
+    }
+
     this.nodes = [];
     this.connections = [];
     
     let columnData = this.workSheet.Values.forEach(row => {
 
-      let levels = [];
-
-      this.param.Levels.forEach(level => {
-        this.getNodes(row, level, levels);
-        levels.push(level);
+      
+      this.param.Nodes.children.forEach((node, index) => {
+        let levels = [];
+        this.getNodes(row, node, levels, index);
       });
       
     });
@@ -115,11 +140,6 @@ export class ForceDirectedComponent implements OnChanges {
     let allSymbolSizes = this.nodes.map(node => {return node.symbolSize;});
     let min = Math.min(...allSymbolSizes);
     let max = Math.max(...allSymbolSizes);
-
-    console.log(this.nodes);
-
-    console.log(min);
-    console.log(max);
 
     this.nodes = this.nodes.map(node => {
         let numerator = node.symbolSize - min;
@@ -133,27 +153,29 @@ export class ForceDirectedComponent implements OnChanges {
         return node;
     });
 
-    console.log(this.nodes);
+    this.changeOptions();
 
+  }
+
+  changeOptions(){
     this.chartOption = {
       title:{
-        text: "广州大学数据分析",
-        subtext: "各学院专业关系-Acring",
+        subtext: this.param.Scale == 'none' ? '' : 'by ' + this.param.Scale,
         top: "top",
         left: "center"
       },
       tooltip: {},
-      //legend: [{
-      //        formatter: function (name) {
-      //      return this.echartsInstance.format.truncateText(name, 40, '14px Microsoft Yahei', '…');
-      //  },
-      //  tooltip: {
-      //      show: true
-      //  },
-      //        selectedMode: 'false',
-      //        bottom: 20,
-      //        data: ['计算机科学与教育软件学院', '地理科学学院', '机械与电气工程学院', '经济与统计学院', '土木工程学院', '新闻与传播学院', '外国语学院', '人文学院', '数学与信息科学学院', '工商管理学院', '法学院', '公共管理学院', '卫斯理安学院', '政治与公民教育学院', '旅游学院', '教育学院', '环境科学与工程学院', '化学化工学院', '物理与电子工程学院', '建筑与城市规划学院', '美术与设计学院', '生命科学学院', '体育学院', '音乐舞蹈学院']
-      //}],
+      legend: [{
+        formatter: (name) => {
+          //return this.echartsInstance.format.truncateText(name, 40, '14px Microsoft Yahei', '…');
+          return name;
+        },
+        tooltip: {
+            show: true
+        },
+        selectedMode: 'false',
+        bottom: 20
+      }],
       toolbox: {
         show : true,
         feature : {
@@ -161,7 +183,7 @@ export class ForceDirectedComponent implements OnChanges {
             restore : {show: true},
             saveAsImage : {show: true}
         }
-    },
+      },
       animationDuration: 3000,
       animationEasingUpdate: 'quinticInOut',
       series: [{
@@ -172,12 +194,14 @@ export class ForceDirectedComponent implements OnChanges {
           force: {
               // initLayout: 'circular'
               // gravity: 0
-              repulsion: 50,
+              repulsion: this.repulsion,
               //edgeLength: 5
           },
           data: this.nodes,
           links: this.connections,
-          categories: this.param.Levels.map(level => { return {name: this.param.Levels.indexOf(level)};}),
+          categories: this.nodes.map(node => {return node.category;})
+                                .filter((item, i, ar) => { return ar.indexOf(item) === i; })
+                                .map(node => {return {name: node};}),
           focusNodeAdjacency: true,
           roam: true,
           label: {
@@ -214,8 +238,6 @@ export class ForceDirectedComponent implements OnChanges {
       }]
     };
   }
-  
-
   
 
 }

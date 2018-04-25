@@ -2,6 +2,7 @@ import { Component, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/
 import { IWorksheet } from '../../models/workbook';
 import * as $ from 'jquery';
 import { ForceDirectedParam } from '../../models/force-directed-param';
+import { TREE_ACTIONS } from 'angular-tree-component';
 
 @Component({
   selector: 'container-force-directed',
@@ -13,114 +14,107 @@ export class ContainerForceDirectedComponent implements OnChanges {
   
   @Input() workSheet: IWorksheet;
 
+  analysisWorkSheet: IWorksheet;
+
   param: ForceDirectedParam;
 
   scale: string;
 
-  focus: string;
+
+  nodes = [];
+  options = {
+    allowDrag: true,
+    allowDrop: (element, { parent, index }) => {
+      return parent.data.droppable;
+    },
+    actionMapping: {
+      mouse: {
+        drop: (tree, node, $event, {from, to}) => {
+
+          if(from.parent.data.droppable == true){
+            tree.moveNode(from, to);
+          }
+          else{
+
+            if(!to.parent.data.children){
+              to.parent.data.children = [{
+                name: from.data.name,
+                droppable: true,
+                parent: {data:{
+                  name: from.data.name,
+                  droppable: true,
+                  children: []
+                }}
+              }];
+            }
+            else{
+              to.parent.data.children.push({
+                name: from.data.name,
+                droppable: true,
+                parent: {data:{
+                  name: from.data.name,
+                  droppable: true,
+                  children: []
+                }}
+              });
+            }
+
+            to.parent.treeModel.update();
+            to.parent.treeModel.expandAll();
+          }
+
+          this.param = JSON.parse(JSON.stringify({
+            Scale: this.scale,
+            Nodes: this.nodes[1]
+          }));
+
+        }
+      }
+    }
+  };
+
+  getTreeNodeObj(column): any{
+    return {id: 0, name: column};
+  }
 
   constructor(){
 
     this.scale = 'none';
-    this.focus = '';
   }
 
   ngOnChanges(changes: SimpleChanges): void {
    
     if(changes.workSheet && changes.workSheet.currentValue != null){
-      
-    }
+      this.analysisWorkSheet = this.workSheet;
 
-  }
-
-  onFocusChanged($event): void {
-
-    this.param = JSON.parse(JSON.stringify({
-      Levels: this.param.Levels,
-      Scale: this.scale,
-      Focus: $event
-    }));
-  }
-
-  source: any;
-
-  /**
-   * CHECKS IF ONE ELEMENT LIES BEFORE THE OTHER
-  */
-  isbefore(a, b) {
-    if (a.parentNode == b.parentNode) {
-      for (var cur = a; cur; cur = cur.previousSibling) {
-        if (cur === b) {
-          return true;
+      this.nodes = [
+        {
+          id: 1,
+          name: 'Available Columns',
+          droppable: false,
+          children: this.analysisWorkSheet.Headers.map(column => { return {droppable: false, name: column};})
+        },
+        {
+          id: 2,
+          name: 'Drag and Drop Here',
+          droppable: true
         }
-      }
-    }
-    return false;
-  }
-  /**
- * LIST ITEM DRAP ENTERED
- */
-  dragenter($event) {
+      ];
 
-    let target = $event.currentTarget;
-
-
-    if(target.parentNode != this.source.parentNode){
-      
-
-      let levels = [];
-      for(let i = 0; i < this.source.parentNode.children.length; i++){
-
-        let childText = this.source.parentNode.children[i].outerText.replace(/\r?\n|\r/g, '');
-        let sourceText = this.source.outerText.replace(/\r?\n|\r/g, '');
-
-        if(sourceText == childText){ continue; }
-
-        levels.push(childText);
-      }
-      
-      this.param = JSON.parse(JSON.stringify({
-        Levels: levels,
-        Scale: this.scale,
-        Focus: this.focus
-      }));
     }
 
-    if (this.isbefore(this.source, target)) {
-      target.parentNode.insertBefore(this.source, target); // insert before
-    }
-    else {
-      target.parentNode.insertBefore(this.source, target.nextSibling); //insert after
-    }
   }
 
-  /**
-  * LIST ITEM DRAG STARTED
-  */
-  dragstart($event) {
-    this.source = $event.currentTarget;
-    $event.dataTransfer.effectAllowed = 'move';
-  }
+  deleteNode(node) : void {
+    if (node.parent != null) {
+        node.parent.data.children.splice(node.parent.data.children.indexOf(node.data), 1);
+        node.parent.treeModel.update();
 
-  levelDragEnter($event) {
-    let target = $event.currentTarget;
-    
-    if(this.source.parentNode != target){
-      target.appendChild(this.source);
+        this.param = JSON.parse(JSON.stringify({
+          Scale: this.scale,
+          Nodes: this.nodes[1]
+        }));
     }
-
-    let levels = [];
-    for(let i = 0; i < target.children.length; i++){
-      let sourceText = target.children[i].outerText.replace(/\r?\n|\r/g, '');
-      levels.push(sourceText);
-    }
-    
-    this.param = JSON.parse(JSON.stringify({
-      Levels: levels,
-      Scale: this.scale,
-      Focus: this.focus
-    }));
-
   }
 
   onScaleChanged($event){
@@ -133,9 +127,16 @@ export class ContainerForceDirectedComponent implements OnChanges {
     }
 
     this.param = JSON.parse(JSON.stringify({
-      Levels: this.param.Levels,
       Scale: this.scale,
-      Focus: this.focus
+      Nodes: this.nodes[1]
+    }));
+  }
+
+  onDataChanged($event) {
+    this.analysisWorkSheet = JSON.parse(JSON.stringify({
+      Name: this.workSheet.Name,
+      Headers:this.workSheet.Headers,
+      Values: $event
     }));
   }
 
